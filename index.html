@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101827">
+<title>Mission Control</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#121d2e;--panel2:#19263a;--line:#29384e;--text:#edf3fb;--muted:#9aabc0;--blue:#67b7ff;--green:#5bd6a0;--amber:#f2c36b}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#111e31,#090f1b 65%);color:var(--text);font:15px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh}
+header{padding:22px 18px 16px;border-bottom:1px solid var(--line);background:#101a2acc;position:sticky;top:0;z-index:2;backdrop-filter:blur(12px)}
+.kicker{font-size:11px;letter-spacing:2px;color:var(--blue);font-weight:700}.top{display:flex;align-items:center;justify-content:space-between;gap:12px}h1{font-size:25px;margin:5px 0 2px}header p{margin:0;color:var(--muted);font-size:13px}
+.status{border:1px solid #315b53;color:var(--green);border-radius:20px;padding:6px 10px;font-size:11px;white-space:nowrap}
+main{max-width:850px;margin:auto;padding:17px;display:grid;gap:15px}.panel{background:#121d2eec;border:1px solid var(--line);border-radius:17px;padding:16px;box-shadow:0 10px 28px #0002}
+h2{font-size:16px;margin:0 0 12px}.agents{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.agent{background:var(--panel2);border:1px solid var(--line);border-radius:13px;padding:13px 8px;text-align:center}.orb{width:34px;height:34px;margin:0 auto 7px;border-radius:50%;display:grid;place-items:center;background:#213d5a;color:#9bd2ff;font-weight:800}.agent:nth-child(2) .orb{background:#392c55;color:#d1b5ff}.agent:nth-child(3) .orb{background:#50352a;color:#ffd0a7}.agent strong{display:block;font-size:14px}.agent small{color:var(--muted);font-size:11px}
+label{display:block;color:var(--muted);font-size:12px;margin:10px 0 5px}input,select,textarea{width:100%;background:#0c1625;border:1px solid #33445c;color:var(--text);border-radius:10px;padding:11px;font:inherit}textarea{min-height:95px;resize:vertical}
+button{border:0;border-radius:10px;padding:11px 14px;background:#2678bb;color:white;font-weight:700;font:inherit;cursor:pointer}button.secondary{background:#25364c;color:#dce8f5}button.danger{background:#63343b;color:#ffe0e3}.buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.hint{font-size:12px;color:var(--muted);line-height:1.5}.logitem{border-top:1px solid var(--line);padding:12px 0}.logitem:first-child{border-top:0}.meta{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-size:11px}.msg{white-space:pre-wrap;overflow-wrap:anywhere;margin-top:7px;line-height:1.45}.empty{color:var(--muted);font-size:13px;padding:10px 0}.pill{border:1px solid var(--line);border-radius:20px;padding:3px 8px;font-size:10px}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:5px 20px 28px}
+@media(max-width:420px){main{padding:12px}.panel{padding:13px}.agents{gap:6px}.agent{padding:11px 4px}}
+</style>
+</head>
+<body>
+<header><div class="top"><div><div class="kicker">PERSONAL AI NETWORK</div><h1>MISSION CONTROL</h1><p>Three assistants. One shared log. You remain in command.</p></div><div class="status">● LOCAL MODE</div></div></header>
+<main>
+<section class="panel">
+<h2>Assistant roster</h2>
+<div class="agents">
+<div class="agent"><div class="orb">J</div><strong>JARVIS</strong><small>Strategy & research</small></div>
+<div class="agent"><div class="orb">F</div><strong>FRIDAY</strong><small>Platform operations</small></div>
+<div class="agent"><div class="orb">E</div><strong>EDITH</strong><small>Analysis & reports</small></div>
+</div>
+<p class="hint" style="margin:12px 0 0">This first version stores notes on this device only. It does not connect to or message the AI platforms automatically.</p>
+</section>
+<section class="panel">
+<h2>Message relay</h2>
+<label for="sender">From</label><select id="sender"><option>Boss</option><option>JARVIS</option><option>FRIDAY</option><option>EDITH</option></select>
+<label for="recipient">To</label><select id="recipient"><option>All assistants</option><option>JARVIS</option><option>FRIDAY</option><option>EDITH</option><option>Boss</option></select>
+<label for="priority">Priority</label><select id="priority"><option>Normal</option><option>High</option><option>Urgent</option></select>
+<label for="message">Message</label><textarea id="message" placeholder="Write a mission, handoff, question, or status update..."></textarea>
+<div class="buttons"><button id="save">Add to mission log</button><button class="secondary" id="copy">Copy message</button></div>
+<p class="hint">To relay a message, copy it and paste it into the recipient assistant's chat. Bring the reply back here and log it with the correct sender.</p>
+</section>
+<section class="panel">
+<div class="top"><h2>Mission log</h2><span class="pill" id="count">0 entries</span></div>
+<div id="log" class="empty">No entries yet. Your first message will appear here.</div>
+<div class="buttons"><button class="secondary" id="export">Export log</button><button class="danger" id="clear">Clear log</button></div>
+</section>
+<section class="panel">
+<h2>Handoff template</h2>
+<textarea id="template" readonly>Owner:
+Priority:
+Objective:
+Status:
+Results / evidence:
+Outstanding issues:
+Authorization needed:
+Next action:</textarea>
+<div class="buttons"><button class="secondary" id="copytemplate">Copy handoff template</button></div>
+</section>
+</main>
+<footer>MISSION CONTROL · Prototype 1 · Local device storage</footer>
+<script>
+const $=id=>document.getElementById(id);
+const KEY='mission-control-v1';
+let entries=[];try{entries=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){entries=[]}
+function persist(){localStorage.setItem(KEY,JSON.stringify(entries));render()}
+function render(){
+ $('count').textContent=entries.length+' entr'+(entries.length===1?'y':'ies');
+ const log=$('log');log.innerHTML='';
+ if(!entries.length){log.className='empty';log.textContent='No entries yet. Your first message will appear here.';return}
+ log.className='';
+ [...entries].reverse().forEach(e=>{
+  const d=document.createElement('div');d.className='logitem';
+  const meta=document.createElement('div');meta.className='meta';
+  const left=document.createElement('span');left.textContent=e.from+' → '+e.to;
+  const right=document.createElement('span');right.textContent=e.priority+' · '+e.time;
+  meta.append(left,right);
+  const body=document.createElement('div');body.className='msg';body.textContent=e.message;
+  d.append(meta,body);log.append(d);
+ });
+}
+function currentText(){return `FROM: ${$('sender').value}\nTO: ${$('recipient').value}\nPRIORITY: ${$('priority').value.toUpperCase()}\n\n${$('message').value.trim()}`}
+$('save').onclick=()=>{const m=$('message').value.trim();if(!m){alert('Enter a message first.');return}
+ entries.push({from:$('sender').value,to:$('recipient').value,priority:$('priority').value,message:m,time:new Date().toLocaleString()});$('message').value='';persist()};
+$('copy').onclick=async()=>{if(!$('message').value.trim()){alert('Enter a message first.');return}try{await navigator.clipboard.writeText(currentText());alert('Message copied. Paste it into the recipient assistant.')}catch(e){alert('Copy is unavailable in this browser. You can select and copy the message manually.')}};
+$('copytemplate').onclick=async()=>{try{await navigator.clipboard.writeText($('template').value);alert('Handoff template copied.')}catch(e){$('template').focus();$('template').select()}};
+$('export').onclick=()=>{const blob=new Blob([JSON.stringify(entries,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='mission-log.json';a.click();URL.revokeObjectURL(url)};
+$('clear').onclick=()=>{if(confirm('Delete all entries stored in this browser on this device? Export first if you want a backup.')){entries=[];persist()}};
+render();
+</script>
+</body>
+</html>
